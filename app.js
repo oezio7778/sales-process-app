@@ -232,7 +232,7 @@ function showNewDealModal() {
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary modal-cancel">Cancel</button>
-                <button class="btn btn-primary modal-submit" form="newDealForm">Create Deal</button>
+                <button class="btn btn-primary modal-submit" type="button">Create Deal</button>
             </div>
         </div>
     `;
@@ -247,10 +247,12 @@ function showNewDealModal() {
     });
 
     // Submit handler
-    document.getElementById('newDealForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Browser validation already passed to get here
+    modal.querySelector('.modal-submit').addEventListener('click', async () => {
+        const form = document.getElementById('newDealForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
 
         const deal = {
             company_name: document.getElementById('dealCompanyName').value,
