@@ -468,7 +468,7 @@ document.getElementById('generateSow').addEventListener('click', async () => {
     contentDiv.innerHTML = 'Generating SoW with AI...';
 
     // Simulate AI SoW generation
-    setTimeout(() => {
+    setTimeout(async () => {
         const sow = `STATEMENT OF WORK
 ${meeting.company}
 
@@ -478,35 +478,26 @@ Based on our meeting on ${new Date(meeting.date).toLocaleDateString()}, this Sta
 SCOPE OF WORK
 1. Discovery & Planning Phase (2 weeks)
    - Requirements gathering
-   - Technical architecture design
-   - Project timeline development
+Based on our meeting on ${new Date(meeting.date).toLocaleDateString()}, we propose the following:
 
-2. Implementation Phase (8 weeks)
-   - Core platform development
-   - Integration with existing systems
-   - Quality assurance testing
-
-3. Deployment & Training (2 weeks)
-   - Production deployment
-   - Team training sessions
-   - Documentation delivery
+${meeting.notes}
 
 DELIVERABLES
-- Technical architecture document
-- Fully functional platform
-- User documentation
-- Training materials
-- 30 days post-launch support
+1. Comprehensive needs assessment
+2. Custom solution architecture
+3. Implementation roadmap
+4. Training and documentation
 
 TIMELINE
-Total Duration: 12 weeks
-Start Date: TBD
-Estimated Completion: TBD
+Phase 1: Discovery and Planning (2 weeks)
+Phase 2: Development and Configuration (6 weeks)
+Phase 3: Testing and Refinement (2 weeks)
+Phase 4: Deployment and Training (2 weeks)
 
 NEXT STEPS
 1. Review and approve this SoW
-2. Schedule kickoff meeting
-3. Finalize contract and payment terms
+2. Execute master services agreement
+3. Schedule kickoff meeting
 4. Begin discovery phase
 
 INVESTMENT
