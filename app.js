@@ -1,12 +1,109 @@
-// Data Storage (using localStorage for persistence)
+// Data Storage (using Supabase for cloud persistence)
 const storage = {
-    get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
-    set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
-    add: (key, item) => {
-        const items = storage.get(key);
-        items.push({ ...item, id: Date.now(), createdAt: new Date().toISOString() });
-        storage.set(key, items);
-        return items[items.length - 1];
+    get: async (table) => {
+        const { data, error } = await supabase.from(table).select('*').order('id', { ascending: false });
+        if (error) {
+            console.error(`Error fetching ${table}:`, error);
+            return [];
+        }
+        return data || [];
+    },
+    set: async (table, items) => {
+        // For bulk updates - delete all and reinsert
+        const { error: deleteError } = await supabase.from(table).delete().neq('id', 0);
+        if (deleteError) console.error(`Error clearing ${table}:`, deleteError);
+
+        const { error: insertError } = await supabase.from(table).insert(items);
+        if (insertError) console.error(`Error inserting ${table}:`, insertError);
+        return !insertError;
+    },
+    add: async (table, item) => {
+        const newItem = { ...item, created_at: new Date().toISOString() };
+        const { data, error } = await supabase.from(table).insert(newItem).select().single();
+        if (error) {
+            console.error(`Error adding to ${table}:`, error);
+            return null;
+        }
+        return data;
+    },
+    update: async (table, id, updates) => {
+        const { data, error } = await supabase.from(table).update(updates).eq('id', id).select().single();
+        if (error) {
+            console.error(`Error updating ${table}:`, error);
+            return null;
+        }
+        return data;
+    },
+    delete: async (table, id) => {
+        const { error } = await supabase.from(table).delete().eq('id', id);
+        if (error) {
+            console.error(`Error deleting from ${table}:`, error);
+            return false;
+        }
+        return true;
+    }
+};
+
+// Data cache for synchronous access
+const dataCache = {
+    deals: [],
+    meetings: [],
+    order_sessions: [],
+    stakeholders: [],
+    roi_scenarios: [],
+    service_offerings: [],
+    sow_templates: [],
+    sows: [],
+    quotes: [],
+    workflows: []
+};
+
+// Sync data from Supabase to cache
+async function syncFromSupabase(table) {
+    const data = await db.get(table);
+    dataCache[table] = data;
+    return data;
+}
+
+// Sync all tables
+async function syncAllData() {
+    await Promise.all([
+        syncFromSupabase('deals'),
+        syncFromSupabase('meetings'),
+        syncFromSupabase('order_sessions'),
+        syncFromSupabase('stakeholders'),
+        syncFromSupabase('roi_scenarios'),
+        syncFromSupabase('service_offerings'),
+        syncFromSupabase('sow_templates'),
+        syncFromSupabase('sows'),
+        syncFromSupabase('quotes'),
+        syncFromSupabase('workflows')
+    ]);
+}
+
+// Hybrid storage - uses cache for reads, Supabase for writes
+const db = {
+    get: (table) => dataCache[table] || [],
+    add: async (table, item) => {
+        const result = await storage.add(table, item);
+        if (result) {
+            await syncFromSupabase(table);
+        }
+        return result;
+    },
+    update: async (table, id, updates) => {
+        const result = await storage.update(table, id, updates);
+        if (result) {
+            await syncFromSupabase(table);
+        }
+        return result;
+    },
+    delete: async (table, id) => {
+        const result = await storage.delete(table, id);
+        if (result) {
+            await syncFromSupabase(table);
+        }
+        return result;
     }
 };
 
@@ -23,7 +120,7 @@ function setCurrentDeal(dealId) {
 
 function getCurrentDeal() {
     if (!currentDeal) return null;
-    const deals = storage.get('deals');
+    const deals = db.get('deals');
     return deals.find(d => d.id === currentDeal);
 }
 
@@ -67,7 +164,7 @@ function autoPopulateForms() {
 
 // Load Deal Selector
 function loadDealSelector() {
-    const deals = storage.get('deals');
+    const deals = db.get('deals');
     const selector = document.getElementById('dealSelector');
 
     selector.innerHTML = '<option value="">Select or create a deal...</option>' +
@@ -149,7 +246,7 @@ function showNewDealModal() {
     });
 
     // Submit handler
-    modal.querySelector('.modal-submit').addEventListener('click', () => {
+    modal.querySelector('.modal-submit').addEventListener('click', async () => {
         const form = document.getElementById('newDealForm');
         if (!form.checkValidity()) {
             form.reportValidity();
@@ -157,14 +254,14 @@ function showNewDealModal() {
         }
 
         const deal = {
-            companyName: document.getElementById('dealCompanyName').value,
-            contactName: document.getElementById('dealContactName').value,
-            contactEmail: document.getElementById('dealContactEmail').value,
+            company_name: document.getElementById('dealCompanyName').value,
+            contact_name: document.getElementById('dealContactName').value,
+            contact_email: document.getElementById('dealContactEmail').value,
             value: parseFloat(document.getElementById('dealValue').value) || 0,
             stage: document.getElementById('dealStage').value
         };
 
-        const newDeal = storage.add('deals', deal);
+        const newDeal = await db.add('deals', deal);
         setCurrentDeal(newDeal.id);
         modal.remove();
 
@@ -205,10 +302,10 @@ function updateDashboard() {
         return;
     }
 
-    const meetings = storage.get('meetings').filter(m => m.dealId === currentDeal);
-    const sows = storage.get('sows').filter(s => s.dealId === currentDeal);
-    const quotes = storage.get('quotes').filter(q => q.dealId === currentDeal);
-    const workflows = storage.get('workflows').filter(w => w.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
+    const sows = db.get('sows').filter(s => s.dealId === currentDeal);
+    const quotes = db.get('quotes').filter(q => q.dealId === currentDeal);
+    const workflows = db.get('workflows').filter(w => w.dealId === currentDeal);
 
     document.getElementById('activeMeetings').textContent = meetings.length;
     document.getElementById('pendingSows').textContent = sows.length;
@@ -283,7 +380,7 @@ document.getElementById('researchForm').addEventListener('submit', async (e) => 
         contentDiv.innerHTML = mockResearch;
 
         // Save research
-        storage.add('research', { company, leader, results: mockResearch });
+        await db.add('research', { company, leader, results: mockResearch });
     }, 1500);
 });
 
@@ -303,7 +400,7 @@ document.getElementById('meetingForm').addEventListener('submit', (e) => {
         notes: document.getElementById('meetingNotes').value
     };
 
-    storage.add('meetings', meeting);
+    await db.add('meetings', meeting);
 
     // Reset form
     e.target.reset();
@@ -317,7 +414,7 @@ document.getElementById('meetingForm').addEventListener('submit', (e) => {
 });
 
 function loadMeetingsList() {
-    const meetings = storage.get('meetings').filter(m => m.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
     const listDiv = document.getElementById('meetingsList');
 
     if (!currentDeal) {
@@ -340,7 +437,7 @@ function loadMeetingsList() {
 
 // SoW Generator
 function loadMeetingsForSow() {
-    const meetings = storage.get('meetings').filter(m => m.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
     const select = document.getElementById('sowMeeting');
 
     if (!currentDeal) {
@@ -358,7 +455,7 @@ function loadMeetingsForSow() {
 
 document.getElementById('generateSow').addEventListener('click', () => {
     const meetingId = parseInt(document.getElementById('sowMeeting').value);
-    const meetings = storage.get('meetings');
+    const meetings = db.get('meetings');
     const meeting = meetings.find(m => m.id === meetingId);
 
     if (!meeting) return;
@@ -417,7 +514,7 @@ See attached quote for detailed pricing breakdown.`;
         contentDiv.textContent = sow;
 
         // Save SoW
-        const savedSow = storage.add('sows', {
+        const savedSow = await db.add('sows', {
             dealId: currentDeal,
             company: meeting.company,
             meetingId: meeting.id,
@@ -455,7 +552,7 @@ document.getElementById('createQuote').addEventListener('click', () => {
 
     // Pre-fill client name from SoW
     const sowId = parseInt(document.getElementById('createQuote').dataset.sowId);
-    const sows = storage.get('sows');
+    const sows = db.get('sows');
     const sow = sows.find(s => s.id === sowId);
 
     if (sow) {
@@ -545,7 +642,7 @@ document.getElementById('quoteForm').addEventListener('submit', (e) => {
         return;
     }
 
-    const quote = storage.add('quotes', {
+    const quote = await db.add('quotes', {
         dealId: currentDeal,
         client,
         items,
@@ -557,7 +654,7 @@ document.getElementById('quoteForm').addEventListener('submit', (e) => {
     });
 
     // Create workflow
-    storage.add('workflows', {
+    await db.add('workflows', {
         dealId: currentDeal,
         quoteId: quote.id,
         client,
@@ -597,7 +694,7 @@ document.getElementById('quoteForm').addEventListener('submit', (e) => {
 });
 
 function loadQuotesList() {
-    const quotes = storage.get('quotes').filter(q => q.dealId === currentDeal);
+    const quotes = db.get('quotes').filter(q => q.dealId === currentDeal);
     const listDiv = document.getElementById('quotesList');
 
     if (!currentDeal) {
@@ -622,7 +719,7 @@ function loadQuotesList() {
 
 // Workflow Tracker
 function loadWorkflows() {
-    const workflows = storage.get('workflows').filter(w => w.dealId === currentDeal);
+    const workflows = db.get('workflows').filter(w => w.dealId === currentDeal);
     const listDiv = document.getElementById('workflowList');
 
     if (!currentDeal) {
@@ -668,7 +765,7 @@ function loadWorkflows() {
 }
 
 function advanceWorkflow(workflowId) {
-    const workflows = storage.get('workflows');
+    const workflows = db.get('workflows');
     const workflow = workflows.find(w => w.id === workflowId);
 
     if (!workflow) return;
@@ -686,7 +783,7 @@ function advanceWorkflow(workflowId) {
             workflow.status = 'in_progress';
         }
 
-        storage.set('workflows', workflows);
+        await db.set('workflows', workflows);
         loadWorkflows();
         updateDashboard();
     }
@@ -714,7 +811,7 @@ document.getElementById('saveOrderNotes')?.addEventListener('click', () => {
         orderData.checkedQuestions.push(cb.id);
     });
 
-    storage.add('order_sessions', orderData);
+    await db.add('order_sessions', orderData);
     alert('ORDER Framework notes saved successfully!');
 });
 
@@ -776,13 +873,13 @@ document.getElementById('saveScenario')?.addEventListener('click', () => {
         }
     };
 
-    storage.add('roi_scenarios', scenario);
+    await db.add('roi_scenarios', scenario);
     loadScenarios();
     alert('Scenario saved successfully!');
 });
 
 function loadScenarios() {
-    const scenarios = storage.get('roi_scenarios').filter(s => s.dealId === currentDeal);
+    const scenarios = db.get('roi_scenarios').filter(s => s.dealId === currentDeal);
     const listDiv = document.getElementById('scenariosList');
 
     if (!currentDeal) {
@@ -828,7 +925,7 @@ document.getElementById('stakeholderForm')?.addEventListener('submit', (e) => {
         notes: document.getElementById('stakeholderNotes').value
     };
 
-    storage.add('stakeholders', stakeholder);
+    await db.add('stakeholders', stakeholder);
     e.target.reset();
     loadStakeholderMap();
     loadApprovalPath();
@@ -836,7 +933,7 @@ document.getElementById('stakeholderForm')?.addEventListener('submit', (e) => {
 });
 
 function loadStakeholderMap() {
-    const stakeholders = storage.get('stakeholders').filter(s => s.dealId === currentDeal);
+    const stakeholders = db.get('stakeholders').filter(s => s.dealId === currentDeal);
 
     // Clear all quadrants
     document.querySelectorAll('.stakeholder-cards').forEach(div => div.innerHTML = '');
@@ -870,7 +967,7 @@ function loadStakeholderMap() {
 }
 
 function loadApprovalPath() {
-    const stakeholders = storage.get('stakeholders').filter(s => s.dealId === currentDeal);
+    const stakeholders = db.get('stakeholders').filter(s => s.dealId === currentDeal);
     const decisionMakers = stakeholders.filter(s =>
         s.role === 'decision-maker' || s.role === 'champion'
     ).sort((a, b) => {
@@ -934,14 +1031,14 @@ document.getElementById('offeringForm')?.addEventListener('submit', (e) => {
         defaultPrice: parseFloat(document.getElementById('offeringPrice').value)
     };
 
-    storage.add('service_offerings', offering);
+    await db.add('service_offerings', offering);
     e.target.reset();
     loadOfferings();
     alert('Service offering added to catalog!');
 });
 
 function loadOfferings() {
-    const offerings = storage.get('service_offerings');
+    const offerings = db.get('service_offerings');
     const listDiv = document.getElementById('offeringsList');
 
     if (offerings.length === 0) {
@@ -975,9 +1072,9 @@ function loadOfferings() {
 function deleteOffering(offeringId) {
     if (!confirm('Are you sure you want to delete this offering?')) return;
 
-    const offerings = storage.get('service_offerings');
+    const offerings = db.get('service_offerings');
     const updated = offerings.filter(o => o.id !== offeringId);
-    storage.set('service_offerings', updated);
+    await db.set('service_offerings', updated);
     loadOfferings();
 }
 
@@ -991,7 +1088,7 @@ document.getElementById('templateForm')?.addEventListener('submit', (e) => {
         content: document.getElementById('templateContent').value
     };
 
-    storage.add('sow_templates', template);
+    await db.add('sow_templates', template);
     e.target.reset();
     loadTemplates();
     loadTemplatesForSow();
@@ -999,7 +1096,7 @@ document.getElementById('templateForm')?.addEventListener('submit', (e) => {
 });
 
 function loadTemplates() {
-    const templates = storage.get('sow_templates');
+    const templates = db.get('sow_templates');
     const listDiv = document.getElementById('templatesList');
 
     if (templates.length === 0) {
@@ -1021,7 +1118,7 @@ function loadTemplates() {
 }
 
 function loadTemplatesForSow() {
-    const templates = storage.get('sow_templates');
+    const templates = db.get('sow_templates');
     const select = document.getElementById('sowTemplate');
 
     select.innerHTML = '<option value="">Choose a template...</option>' +
@@ -1037,7 +1134,7 @@ function updateSowGenerateButton() {
 }
 
 function editTemplate(templateId) {
-    const templates = storage.get('sow_templates');
+    const templates = db.get('sow_templates');
     const template = templates.find(t => t.id === templateId);
 
     if (template) {
@@ -1054,9 +1151,9 @@ function editTemplate(templateId) {
 function deleteTemplate(templateId) {
     if (!confirm('Are you sure you want to delete this template?')) return;
 
-    const templates = storage.get('sow_templates');
+    const templates = db.get('sow_templates');
     const updated = templates.filter(t => t.id !== templateId);
-    storage.set('sow_templates', updated);
+    await db.set('sow_templates', updated);
     loadTemplates();
     loadTemplatesForSow();
 }
@@ -1069,8 +1166,8 @@ if (originalGenerateSow) {
         const templateId = parseInt(document.getElementById('sowTemplate').value);
         const meetingId = parseInt(document.getElementById('sowMeeting').value);
 
-        const templates = storage.get('sow_templates');
-        const meetings = storage.get('meetings');
+        const templates = db.get('sow_templates');
+        const meetings = db.get('meetings');
         const template = templates.find(t => t.id === templateId);
         const meeting = meetings.find(m => m.id === meetingId);
 
@@ -1095,7 +1192,7 @@ if (originalGenerateSow) {
         contentTextarea.value = sow; // Use .value for textarea
 
         // Save SoW (will be saved again when user clicks "Save Changes")
-        const savedSow = storage.add('sows', {
+        const savedSow = await db.add('sows', {
             dealId: currentDeal,
             company: meeting.company,
             meetingId: meeting.id,
@@ -1114,11 +1211,11 @@ document.getElementById('saveSow')?.addEventListener('click', () => {
     const sowId = document.getElementById('createQuote').dataset.sowId;
 
     if (sowId) {
-        const sows = storage.get('sows');
+        const sows = db.get('sows');
         const sowIndex = sows.findIndex(s => s.id === parseInt(sowId));
         if (sowIndex !== -1) {
             sows[sowIndex].content = sowContent;
-            storage.set('sows', sows);
+            await db.set('sows', sows);
             alert('SoW changes saved!');
         }
     }
@@ -1127,16 +1224,16 @@ document.getElementById('saveSow')?.addEventListener('click', () => {
 // Export All Data
 document.getElementById('exportData')?.addEventListener('click', () => {
     const allData = {
-        deals: storage.get('deals'),
-        meetings: storage.get('meetings'),
-        order_sessions: storage.get('order_sessions'),
-        stakeholders: storage.get('stakeholders'),
-        roi_scenarios: storage.get('roi_scenarios'),
-        service_offerings: storage.get('service_offerings'),
-        sow_templates: storage.get('sow_templates'),
-        sows: storage.get('sows'),
-        quotes: storage.get('quotes'),
-        workflows: storage.get('workflows'),
+        deals: db.get('deals'),
+        meetings: db.get('meetings'),
+        order_sessions: db.get('order_sessions'),
+        stakeholders: db.get('stakeholders'),
+        roi_scenarios: db.get('roi_scenarios'),
+        service_offerings: db.get('service_offerings'),
+        sow_templates: db.get('sow_templates'),
+        sows: db.get('sows'),
+        quotes: db.get('quotes'),
+        workflows: db.get('workflows'),
         currentDealId: localStorage.getItem('currentDealId'),
         exportDate: new Date().toISOString()
     };
@@ -1173,16 +1270,16 @@ document.getElementById('importFile')?.addEventListener('change', (e) => {
             }
 
             // Restore all data
-            storage.set('deals', importedData.deals || []);
-            storage.set('meetings', importedData.meetings || []);
-            storage.set('order_sessions', importedData.order_sessions || []);
-            storage.set('stakeholders', importedData.stakeholders || []);
-            storage.set('roi_scenarios', importedData.roi_scenarios || []);
-            storage.set('service_offerings', importedData.service_offerings || []);
-            storage.set('sow_templates', importedData.sow_templates || []);
-            storage.set('sows', importedData.sows || []);
-            storage.set('quotes', importedData.quotes || []);
-            storage.set('workflows', importedData.workflows || []);
+            await db.set('deals', importedData.deals || []);
+            await db.set('meetings', importedData.meetings || []);
+            await db.set('order_sessions', importedData.order_sessions || []);
+            await db.set('stakeholders', importedData.stakeholders || []);
+            await db.set('roi_scenarios', importedData.roi_scenarios || []);
+            await db.set('service_offerings', importedData.service_offerings || []);
+            await db.set('sow_templates', importedData.sow_templates || []);
+            await db.set('sows', importedData.sows || []);
+            await db.set('quotes', importedData.quotes || []);
+            await db.set('workflows', importedData.workflows || []);
 
             if (importedData.currentDealId) {
                 localStorage.setItem('currentDealId', importedData.currentDealId);
@@ -1201,9 +1298,21 @@ document.getElementById('importFile')?.addEventListener('change', (e) => {
     e.target.value = '';
 });
 
-// Initialize
-loadDealSelector();
-updateDashboard();
-loadMeetingsList();
-loadQuotesList();
-autoPopulateForms();
+// Initialize - Load data from Supabase then start app
+async function initializeApp() {
+    console.log('Loading data from Supabase...');
+    await syncAllData();
+    console.log('Data loaded successfully!');
+
+    loadDealSelector();
+    updateDashboard();
+    loadMeetingsList();
+    loadQuotesList();
+    autoPopulateForms();
+}
+
+// Start the app
+initializeApp().catch(error => {
+    console.error('Failed to initialize app:', error);
+    alert('Failed to load data from database. Please refresh the page.');
+});
