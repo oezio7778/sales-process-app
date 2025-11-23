@@ -22,6 +22,7 @@ const storage = {
         const { data, error } = await supabase.from(table).insert(newItem).select().single();
         if (error) {
             console.error(`Error adding to ${table}:`, error);
+            alert(`Error saving to ${table}: ${error.message}`);
             return null;
         }
         return data;
@@ -262,10 +263,16 @@ function showNewDealModal() {
         };
 
         const newDeal = await db.add('deals', deal);
+
+        if (!newDeal) {
+            // Error is already logged/alerted by storage.add
+            return;
+        }
+
         setCurrentDeal(newDeal.id);
         modal.remove();
 
-        alert(`Deal created for ${deal.companyName}! All your notes and activities will now be linked to this deal.`);
+        alert(`Deal created for ${deal.company_name}! All your notes and activities will now be linked to this deal.`);
     });
 }
 
