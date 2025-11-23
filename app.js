@@ -180,7 +180,7 @@ document.getElementById('dealSelector')?.addEventListener('change', (e) => {
 });
 
 // New Deal Button
-document.getElementById('newDealBtn')?.addEventListener('click', () => {
+document.getElementById('newDealBtn')?.addEventListener('click', async () => {
     showNewDealModal();
 });
 
@@ -239,8 +239,8 @@ function showNewDealModal() {
     document.body.appendChild(modal);
 
     // Close modal handlers
-    modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
-    modal.querySelector('.modal-cancel').addEventListener('click', () => modal.remove());
+    modal.querySelector('.modal-close').addEventListener('click', async () => modal.remove());
+    modal.querySelector('.modal-cancel').addEventListener('click', async () => modal.remove());
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.remove();
     });
@@ -271,7 +271,7 @@ function showNewDealModal() {
 
 // Navigation
 document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', async () => {
         const page = item.dataset.page;
 
         // Update active nav item
@@ -342,36 +342,37 @@ function updateDashboard() {
     }
 }
 
-// Meeting Preparation / Research
-document.getElementById('researchForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const company = document.getElementById('companyName').value;
-    const leader = document.getElementById('leaderName').value;
-
-    const resultsDiv = document.getElementById('researchResults');
+// Pre-Call Research
+document.getElementById('researchBtn')?.addEventListener('click', async () => {
+    const company = document.getElementById('researchCompany').value;
+    const leader = document.getElementById('researchLeader').value;
     const contentDiv = document.getElementById('researchContent');
 
-    resultsDiv.classList.remove('hidden');
-    contentDiv.innerHTML = '<p>🔍 Researching...</p>';
+    if (!company) {
+        alert('Please enter a company name');
+        return;
+    }
 
-    // Simulate AI research (in production, this would call an API)
-    setTimeout(() => {
+    contentDiv.innerHTML = '<p>Researching... (simulated AI)</p>';
+
+    // Simulate AI research
+    setTimeout(async () => {
         const mockResearch = `
-            <h4>Company: ${company}</h4>
-            <p><strong>Industry:</strong> Technology / SaaS</p>
-            <p><strong>Size:</strong> 50-200 employees</p>
-            <p><strong>Recent News:</strong> Announced Series B funding round</p>
-            <p><strong>Key Challenges:</strong> Scaling infrastructure, improving customer onboarding</p>
-            ${leader ? `
-                <h4 style="margin-top: 1.5rem;">Leader: ${leader}</h4>
-                <p><strong>Role:</strong> Chief Technology Officer</p>
-                <p><strong>Background:</strong> 10+ years in enterprise software</p>
-                <p><strong>LinkedIn:</strong> Active on platform, posts about cloud architecture</p>
-            ` : ''}
-            <h4 style="margin-top: 1.5rem;">Talking Points:</h4>
-            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                <li>Discuss scalability solutions for rapid growth</li>
+            <h3>Research Results for ${company}</h3>
+            <h4>Company Overview</h4>
+            <ul>
+                <li>Industry leader in their sector</li>
+                <li>Recent growth trajectory shows 15% YoY increase</li>
+                <li>Key challenges: Digital transformation, operational efficiency</li>
+            </ul>
+            <h4>Leadership Insights${leader ? ` - ${leader}` : ''}</h4>
+            <ul>
+                <li>Focus on innovation and customer experience</li>
+                <li>Recent initiatives in cloud adoption</li>
+                <li>Values data-driven decision making</li>
+            </ul>
+            <h4>Recommended Talking Points</h4>
+            <ul>
                 <li>Highlight experience with similar-sized companies</li>
                 <li>Focus on ROI and time-to-value</li>
             </ul>
@@ -385,7 +386,7 @@ document.getElementById('researchForm').addEventListener('submit', async (e) => 
 });
 
 // Meeting Notes
-document.getElementById('meetingForm').addEventListener('submit', (e) => {
+document.getElementById('meetingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!currentDeal) {
@@ -453,7 +454,7 @@ function loadMeetingsForSow() {
     });
 }
 
-document.getElementById('generateSow').addEventListener('click', () => {
+document.getElementById('generateSow').addEventListener('click', async () => {
     const meetingId = parseInt(document.getElementById('sowMeeting').value);
     const meetings = db.get('meetings');
     const meeting = meetings.find(m => m.id === meetingId);
@@ -528,7 +529,7 @@ See attached quote for detailed pricing breakdown.`;
     }, 2000);
 });
 
-document.getElementById('editSow').addEventListener('click', () => {
+document.getElementById('editSow').addEventListener('click', async () => {
     const contentDiv = document.getElementById('sowContent');
     const currentContent = contentDiv.textContent;
 
@@ -546,7 +547,7 @@ document.getElementById('editSow').addEventListener('click', () => {
     };
 });
 
-document.getElementById('createQuote').addEventListener('click', () => {
+document.getElementById('createQuote').addEventListener('click', async () => {
     // Navigate to quotes page
     document.querySelector('[data-page="quotes"]').click();
 
@@ -563,7 +564,7 @@ document.getElementById('createQuote').addEventListener('click', () => {
 // Quote Builder
 let quoteItemCount = 1;
 
-document.getElementById('addItem').addEventListener('click', () => {
+document.getElementById('addItem').addEventListener('click', async () => {
     quoteItemCount++;
     const itemsDiv = document.getElementById('quoteItems');
     const newItem = document.createElement('div');
@@ -582,7 +583,7 @@ document.getElementById('addItem').addEventListener('click', () => {
     itemsDiv.appendChild(newItem);
 
     // Add remove functionality
-    newItem.querySelector('.remove-item').addEventListener('click', () => {
+    newItem.querySelector('.remove-item').addEventListener('click', async () => {
         newItem.remove();
         quoteItemCount--;
         updateQuoteTotals();
@@ -618,7 +619,7 @@ document.querySelectorAll('.item-cost, .item-price').forEach(input => {
     input.addEventListener('input', updateQuoteTotals);
 });
 
-document.getElementById('quoteForm').addEventListener('submit', (e) => {
+document.getElementById('quoteForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const client = document.getElementById('quoteClient').value;
@@ -790,7 +791,7 @@ function advanceWorkflow(workflowId) {
 }
 
 // ORDER Framework
-document.getElementById('saveOrderNotes')?.addEventListener('click', () => {
+document.getElementById('saveOrderNotes')?.addEventListener('click', async () => {
     if (!currentDeal) {
         alert('Please select or create a deal first!');
         return;
@@ -816,7 +817,7 @@ document.getElementById('saveOrderNotes')?.addEventListener('click', () => {
 });
 
 // ROI Calculator
-document.getElementById('calculateROI')?.addEventListener('click', () => {
+document.getElementById('calculateROI')?.addEventListener('click', async () => {
     const teamSize = parseInt(document.getElementById('teamSize').value);
     const avgSalary = parseFloat(document.getElementById('avgSalary').value);
     const hoursPerWeek = parseFloat(document.getElementById('hoursPerWeek').value);
@@ -848,7 +849,7 @@ document.getElementById('calculateROI')?.addEventListener('click', () => {
     document.getElementById('savedScenarios').classList.remove('hidden');
 });
 
-document.getElementById('saveScenario')?.addEventListener('click', () => {
+document.getElementById('saveScenario')?.addEventListener('click', async () => {
     if (!currentDeal) {
         alert('Please select or create a deal first!');
         return;
@@ -900,12 +901,12 @@ function loadScenarios() {
     }
 }
 
-document.getElementById('exportROI')?.addEventListener('click', () => {
+document.getElementById('exportROI')?.addEventListener('click', async () => {
     alert('ROI data ready for export to proposal! (In production, this would generate a PDF or document)');
 });
 
 // Stakeholder Mapping
-document.getElementById('stakeholderForm')?.addEventListener('submit', (e) => {
+document.getElementById('stakeholderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!currentDeal) {
@@ -995,7 +996,7 @@ function loadApprovalPath() {
 // Update navigation to load new pages
 const originalNavHandler = document.querySelectorAll('.nav-item');
 document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', async () => {
         const page = item.dataset.page;
 
         // Auto-populate forms when navigating
@@ -1020,7 +1021,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 // Service Catalog Management
-document.getElementById('offeringForm')?.addEventListener('submit', (e) => {
+document.getElementById('offeringForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const offering = {
@@ -1079,7 +1080,7 @@ function deleteOffering(offeringId) {
 }
 
 // SoW Templates Management
-document.getElementById('templateForm')?.addEventListener('submit', (e) => {
+document.getElementById('templateForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const template = {
@@ -1162,7 +1163,7 @@ function deleteTemplate(templateId) {
 const originalGenerateSow = document.getElementById('generateSow');
 if (originalGenerateSow) {
     originalGenerateSow.removeEventListener('click', () => { });
-    originalGenerateSow.addEventListener('click', () => {
+    originalGenerateSow.addEventListener('click', async () => {
         const templateId = parseInt(document.getElementById('sowTemplate').value);
         const meetingId = parseInt(document.getElementById('sowMeeting').value);
 
@@ -1206,7 +1207,7 @@ if (originalGenerateSow) {
 }
 
 // Save edited SoW
-document.getElementById('saveSow')?.addEventListener('click', () => {
+document.getElementById('saveSow')?.addEventListener('click', async () => {
     const sowContent = document.getElementById('sowContent').value;
     const sowId = document.getElementById('createQuote').dataset.sowId;
 
@@ -1222,7 +1223,7 @@ document.getElementById('saveSow')?.addEventListener('click', () => {
 });
 
 // Export All Data
-document.getElementById('exportData')?.addEventListener('click', () => {
+document.getElementById('exportData')?.addEventListener('click', async () => {
     const allData = {
         deals: db.get('deals'),
         meetings: db.get('meetings'),
@@ -1251,7 +1252,7 @@ document.getElementById('exportData')?.addEventListener('click', () => {
 });
 
 // Import Data
-document.getElementById('importData')?.addEventListener('click', () => {
+document.getElementById('importData')?.addEventListener('click', async () => {
     document.getElementById('importFile').click();
 });
 
