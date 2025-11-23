@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Process App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>Sales<span>Pro</span></h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="research">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <span>Pre-Call Prep</span>
+                </li>
+                <li class="nav-item" data-page="order">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>ORDER Framework</span>
+                </li>
+                <li class="nav-item" data-page="meetings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                    <span>Meeting Notes</span>
+                </li>
+                <li class="nav-item" data-page="stakeholders">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Stakeholders</span>
+                </li>
+                <li class="nav-item" data-page="roi">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        <polyline points="9 18 12 21 15 18"></polyline>
+                        <polyline points="15 6 12 3 9 6"></polyline>
+                    </svg>
+                    <span>ROI Calculator</span>
+                </li>
+                <li class="nav-item" data-page="catalog">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <line x1="9" y1="12" x2="15" y2="12"></line>
+                        <line x1="9" y1="16" x2="15" y2="16"></line>
+                    </svg>
+                    <span>Service Catalog</span>
+                </li>
+                <li class="nav-item" data-page="sow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Documents</span>
+                </li>
+                <li class="nav-item" data-page="quotes">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>Quotes</span>
+                </li>
+                <li class="nav-item" data-page="workflow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    <span>Workflow</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Deal Selector Bar -->
+            <div class="deal-selector-bar">
+                <div class="deal-selector-left">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="deal-label">Current Deal:</span>
+                    <select id="dealSelector" class="deal-select">
+                        <option value="">Select or create a deal...</option>
+                    </select>
+                </div>
+                <button id="newDealBtn" class="btn btn-primary btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Deal
+                </button>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <header class="page-header">
+                    <h2>Dashboard</h2>
+                    <p class="subtitle">Overview of your sales pipeline</p>
+                </header>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <polyline points="17 11 19 13 23 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="activeMeetings">0</h3>
+                            <p>Active Meetings</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingSows">0</h3>
+                            <p>Pending SoWs</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="openQuotes">0</h3>
+                            <p>Open Quotes</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="activeWorkflows">0</h3>
+                            <p>Active Workflows</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="activityList" class="activity-list">
+                        <div class="empty-state">
+                            <p>No recent activity. Start by preparing for a meeting!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>Data Management</h3>
+                    <p class="help-text">Export your data for backup or import to restore in a new browser/tab.</p>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button id="exportData" class="btn btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export All Data
+                        </button>
+                        <button id="importData" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Import Data
+                        </button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER Framework Page -->
+            <div id="order" class="page">
+                <header class="page-header">
+                    <h2>ORDER Framework</h2>
+                    <p class="subtitle">Guided discovery process for every sales conversation</p>
+                </header>
+
+                <div class="order-steps">
+                    <div class="order-step" data-step="opening">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <h3>Opening - Build Rapport</h3>
+                        </div>
+                        <div class="step-content">
+                            <p class="step-description">Establish connection and set the tone for the conversation</p>
+                            <div class="questions-list">
+                                <div class="question-item">
+                                    <input type="checkbox" id="q1-1">
+                                    <label for="q1-1">How did you get started in your current role?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q1-2">
+                                    <label for="q1-2">What are your main priorities this quarter?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q1-3">
+                                    <label for="q1-3">Tell me about your team structure</label>
+                                </div>
+                            </div>
+                            <textarea class="step-notes" placeholder="Notes from this step..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="order-step" data-step="root">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <h3>Root Problem - Uncover Pain</h3>
+                        </div>
+                        <div class="step-content">
+                            <p class="step-description">Identify the core challenges and pain points</p>
+                            <div class="questions-list">
+                                <div class="question-item">
+                                    <input type="checkbox" id="q2-1">
+                                    <label for="q2-1">What's the biggest challenge you're facing right now?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q2-2">
+                                    <label for="q2-2">How long has this been an issue?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q2-3">
+                                    <label for="q2-3">What have you tried so far to address this?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q2-4">
+                                    <label for="q2-4">What's preventing you from solving this internally?</label>
+                                </div>
+                            </div>
+                            <textarea class="step-notes" placeholder="Notes from this step..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="order-step" data-step="deep">
+                        <div class="step-header">
+                            <div class="step-number">3</div>
+                            <h3>Deep Impact - Quantify Costs</h3>
+                        </div>
+                        <div class="step-content">
+                            <p class="step-description">Understand the financial and operational impact</p>
+                            <div class="questions-list">
+                                <div class="question-item">
+                                    <input type="checkbox" id="q3-1">
+                                    <label for="q3-1">How much time does your team spend on this weekly?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q3-2">
+                                    <label for="q3-2">What's the cost of not solving this problem?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q3-3">
+                                    <label for="q3-3">How does this impact revenue/productivity?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q3-4">
+                                    <label for="q3-4">What opportunities are you missing because of this?</label>
+                                </div>
+                            </div>
+                            <textarea class="step-notes" placeholder="Notes from this step..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="order-step" data-step="enablement">
+                        <div class="step-header">
+                            <div class="step-number">4</div>
+                            <h3>Enablement - Present Solution</h3>
+                        </div>
+                        <div class="step-content">
+                            <p class="step-description">Connect your solution to their specific needs</p>
+                            <div class="questions-list">
+                                <div class="question-item">
+                                    <input type="checkbox" id="q4-1">
+                                    <label for="q4-1">Based on what you've shared, here's how we can help...</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q4-2">
+                                    <label for="q4-2">What would success look like for you in 6 months?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q4-3">
+                                    <label for="q4-3">How does this align with your goals?</label>
+                                </div>
+                            </div>
+                            <textarea class="step-notes" placeholder="Notes from this step..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="order-step" data-step="resources">
+                        <div class="step-header">
+                            <div class="step-number">5</div>
+                            <h3>Resources - Map Decision Path</h3>
+                        </div>
+                        <div class="step-content">
+                            <p class="step-description">Understand the buying process and stakeholders</p>
+                            <div class="questions-list">
+                                <div class="question-item">
+                                    <input type="checkbox" id="q5-1">
+                                    <label for="q5-1">Who else needs to be involved in this decision?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q5-2">
+                                    <label for="q5-2">What's your typical approval process?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q5-3">
+                                    <label for="q5-3">What's your timeline for making a decision?</label>
+                                </div>
+                                <div class="question-item">
+                                    <input type="checkbox" id="q5-4">
+                                    <label for="q5-4">What budget has been allocated for this?</label>
+                                </div>
+                            </div>
+                            <textarea class="step-notes" placeholder="Notes from this step..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <button id="saveOrderNotes" class="btn btn-primary">Save ORDER Framework Notes</button>
+                </div>
+            </div>
+
+            <!-- ROI Calculator Page -->
+            <div id="roi" class="page">
+                <header class="page-header">
+                    <h2>ROI Calculator</h2>
+                    <p class="subtitle">Quantify impact and build compelling business cases</p>
+                </header>
+
+                <div class="card">
+                    <form id="roiForm" class="form">
+                        <h3>Current State Analysis</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="teamSize">Team Size</label>
+                                <input type="number" id="teamSize" min="1" value="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="avgSalary">Average Salary ($)</label>
+                                <input type="number" id="avgSalary" min="0" value="75000" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hoursPerWeek">Hours Spent on Problem (per week)</label>
+                                <input type="number" id="hoursPerWeek" min="0" step="0.5" value="5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="currentOutput">Current Output (units/month)</label>
+                                <input type="number" id="currentOutput" min="0" value="100" required>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 2rem;">Expected Improvements</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="timeReduction">Time Reduction (%)</label>
+                                <input type="number" id="timeReduction" min="0" max="100" value="50" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="outputIncrease">Output Increase (%)</label>
+                                <input type="number" id="outputIncrease" min="0" max="500" value="30" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="costReduction">Annual Cost Reduction ($)</label>
+                                <input type="number" id="costReduction" min="0" value="25000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="implementationCost">Implementation Cost ($)</label>
+                                <input type="number" id="implementationCost" min="0" value="50000" required>
+                            </div>
+                        </div>
+
+                        <button type="button" id="calculateROI" class="btn btn-primary">Calculate ROI</button>
+                    </form>
+                </div>
+
+                <div id="roiResults" class="card hidden" style="margin-top: 2rem;">
+                    <h3>ROI Analysis Results</h3>
+
+                    <div class="roi-metrics">
+                        <div class="roi-metric">
+                            <div class="metric-label">Time Reclaimed Annually</div>
+                            <div class="metric-value" id="timeReclaimed">0 hours</div>
+                        </div>
+                        <div class="roi-metric">
+                            <div class="metric-label">Annual Labor Cost Savings</div>
+                            <div class="metric-value" id="laborSavings">$0</div>
+                        </div>
+                        <div class="roi-metric">
+                            <div class="metric-label">Output Increase</div>
+                            <div class="metric-value" id="outputGain">0 units/month</div>
+                        </div>
+                        <div class="roi-metric">
+                            <div class="metric-label">Total Annual Benefit</div>
+                            <div class="metric-value highlight" id="totalBenefit">$0</div>
+                        </div>
+                        <div class="roi-metric">
+                            <div class="metric-label">Payback Period</div>
+                            <div class="metric-value" id="paybackPeriod">0 months</div>
+                        </div>
+                        <div class="roi-metric">
+                            <div class="metric-label">3-Year ROI</div>
+                            <div class="metric-value highlight" id="threeYearROI">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="scenario-buttons" style="margin-top: 2rem;">
+                        <button id="saveScenario" class="btn btn-secondary">Save Scenario</button>
+                        <button id="exportROI" class="btn btn-primary">Export to Proposal</button>
+                    </div>
+                </div>
+
+                <div id="savedScenarios" class="card hidden" style="margin-top: 2rem;">
+                    <h3>Saved Scenarios</h3>
+                    <div id="scenariosList"></div>
+                </div>
+            </div>
+
+            <!-- Stakeholder Mapping Page -->
+            <div id="stakeholders" class="page">
+                <header class="page-header">
+                    <h2>Stakeholder Mapping</h2>
+                    <p class="subtitle">Track decision-makers and navigate internal politics</p>
+                </header>
+
+                <div class="card">
+                    <h3>Add New Stakeholder</h3>
+                    <p class="help-text" style="margin-bottom: 1.5rem;">Add people involved in the decision-making
+                        process for this deal.</p>
+                    <form id="stakeholderForm" class="form">
+                        <h3>Add Stakeholder</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="stakeholderName">Name</label>
+                                <input type="text" id="stakeholderName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stakeholderTitle">Title</label>
+                                <input type="text" id="stakeholderTitle" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="stakeholderRole">Role in Decision</label>
+                                <select id="stakeholderRole" required>
+                                    <option value="">Select role...</option>
+                                    <option value="champion">Champion</option>
+                                    <option value="decision-maker">Decision Maker</option>
+                                    <option value="influencer">Influencer</option>
+                                    <option value="gatekeeper">Gatekeeper</option>
+                                    <option value="blocker">Blocker</option>
+                                    <option value="user">End User</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="stakeholderInfluence">Influence Level</label>
+                                <select id="stakeholderInfluence" required>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="stakeholderSupport">Support Level</label>
+                                <select id="stakeholderSupport" required>
+                                    <option value="strong-supporter">Strong Supporter</option>
+                                    <option value="supporter">Supporter</option>
+                                    <option value="neutral">Neutral</option>
+                                    <option value="skeptic">Skeptic</option>
+                                    <option value="blocker">Blocker</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="stakeholderEmail">Email</label>
+                                <input type="email" id="stakeholderEmail">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stakeholderCriteria">Decision Criteria / Priorities</label>
+                            <textarea id="stakeholderCriteria" rows="3"
+                                placeholder="What matters most to this stakeholder?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stakeholderNotes">Notes</label>
+                            <textarea id="stakeholderNotes" rows="3"
+                                placeholder="Additional notes about this stakeholder..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Stakeholder</button>
+                    </form>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>Stakeholder Map</h3>
+                    <div id="stakeholderGrid" class="stakeholder-grid">
+                        <div class="grid-quadrant high-influence high-support">
+                            <h4>Champions</h4>
+                            <p class="quadrant-desc">High Influence + Supportive</p>
+                            <div class="stakeholder-cards" data-quadrant="champion"></div>
+                        </div>
+                        <div class="grid-quadrant high-influence low-support">
+                            <h4>Key Players</h4>
+                            <p class="quadrant-desc">High Influence + Needs Convincing</p>
+                            <div class="stakeholder-cards" data-quadrant="key"></div>
+                        </div>
+                        <div class="grid-quadrant low-influence high-support">
+                            <h4>Supporters</h4>
+                            <p class="quadrant-desc">Lower Influence + Supportive</p>
+                            <div class="stakeholder-cards" data-quadrant="supporter"></div>
+                        </div>
+                        <div class="grid-quadrant low-influence low-support">
+                            <h4>Monitor</h4>
+                            <p class="quadrant-desc">Lower Influence + Less Supportive</p>
+                            <div class="stakeholder-cards" data-quadrant="monitor"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>Approval Path</h3>
+                    <div id="approvalPath" class="approval-path"></div>
+                </div>
+            </div>
+
+            <!-- Service Catalog Page -->
+            <div id="catalog" class="page">
+                <header class="page-header">
+                    <h2>Service Catalog</h2>
+                    <p class="subtitle">Manage your standard service offerings</p>
+                </header>
+
+                <div class="card">
+                    <div class="card-header-with-button">
+                        <h3>Add New Offering</h3>
+                    </div>
+                    <form id="offeringForm" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="offeringName">Service Name *</label>
+                                <input type="text" id="offeringName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="offeringCategory">Category</label>
+                                <select id="offeringCategory">
+                                    <option value="Consulting">Consulting</option>
+                                    <option value="Implementation">Implementation</option>
+                                    <option value="Training">Training</option>
+                                    <option value="Support">Support</option>
+                                    <option value="Infrastructure">Infrastructure</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="offeringDescription">Description</label>
+                            <textarea id="offeringDescription" rows="3"
+                                placeholder="Brief description of this service..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="offeringCost">Default Cost ($)</label>
+                                <input type="number" id="offeringCost" min="0" step="100" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="offeringPrice">Default Price ($)</label>
+                                <input type="number" id="offeringPrice" min="0" step="100" placeholder="0" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add to Catalog</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Your Service Offerings</h3>
+                    <div id="offeringsList" class="offerings-grid"></div>
+                </div>
+            </div>
+
+            <!-- Meeting Prep Page -->
+            <div id="research" class="page">
+                <header class="page-header">
+                    <h2>Meeting Preparation</h2>
+                    <p class="subtitle">Research companies and leaders</p>
+                </header>
+
+                <div class="card">
+                    <form id="researchForm" class="form">
+                        <div class="form-group">
+                            <label for="companyName">Company Name</label>
+                            <input type="text" id="companyName" placeholder="Enter company name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="leaderName">Leader Name (Optional)</label>
+                            <input type="text" id="leaderName" placeholder="Enter leader's name">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            Research
+                        </button>
+                    </form>
+
+                    <div id="researchResults" class="research-results hidden">
+                        <h3>Research Results</h3>
+                        <div id="researchContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meeting Notes Page -->
+            <div id="meetings" class="page">
+                <header class="page-header">
+                    <h2>Meeting Notes</h2>
+                    <p class="subtitle">Upload and manage meeting notes</p>
+                </header>
+
+                <div class="card">
+                    <form id="meetingForm" class="form">
+                        <div class="form-group">
+                            <label for="meetingCompany">Company</label>
+                            <input type="text" id="meetingCompany" placeholder="Company name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="meetingDate">Meeting Date</label>
+                            <input type="date" id="meetingDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="meetingNotes">Meeting Notes</label>
+                            <textarea id="meetingNotes" rows="8" placeholder="Enter your meeting notes here..."
+                                required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Meeting Notes</button>
+                    </form>
+                </div>
+
+                <div class="meetings-list">
+                    <h3>Past Meetings</h3>
+                    <div id="meetingsList"></div>
+                </div>
+
+                <div class="activity-feed">
+                    <h3>Recent Activity</h3>
+                    <div id="activityList"></div>
+                </div>
+            </div>
+    </div>
+    </div>
+
+    <!-- SoW Generator / Documents Page -->
+    <div id="sow" class="page">
+        <header class="page-header">
+            <h2>Documents</h2>
+            <p class="subtitle">Generate SoWs and manage templates</p>
+        </header>
+
+        <!-- SoW Templates Management -->
+        <div class="card">
+            <h3>Manage SoW Templates</h3>
+            <form id="templateForm" class="form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="templateName">Template Name *</label>
+                        <input type="text" id="templateName" placeholder="e.g., Standard Consulting SoW" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="templateCategory">Category</label>
+                        <select id="templateCategory">
+                            <option value="Consulting">Consulting</option>
+                            <option value="Implementation">Implementation</option>
+                            <option value="Training">Training</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Support">Support</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="templateContent">Template Content *</label>
+                    <p class="help-text">Use variables: {{COMPANY_NAME}}, {{CONTACT_NAME}}, {{CONTACT_EMAIL}},
+                        {{DEAL_VALUE}}, {{CURRENT_DATE}}, {{MEETING_DATE}}, {{MEETING_NOTES}}</p>
+                    <textarea id="templateContent" rows="12"
+                        placeholder="STATEMENT OF WORK&#10;{{COMPANY_NAME}}&#10;&#10;PROJECT OVERVIEW&#10;..."
+                        required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Template</button>
+            </form>
+
+            <div style="margin-top: 2rem;">
+                <h4>Saved Templates</h4>
+                <div id="templatesList" class="templates-list"></div>
+            </div>
+        </div>
+
+        <!-- SoW Generation -->
+        <div class="card">
+            <h3>Generate SoW</h3>
+            <div class="form-group">
+                <label for="sowTemplate">Select Template</label>
+                <select id="sowTemplate">
+                    <option value="">Choose a template...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sowMeeting">Select Meeting</label>
+                <select id="sowMeeting">
+                    <option value="">Choose a meeting...</option>
+                </select>
+            </div>
+
+            <button id="generateSow" class="btn btn-primary" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Generate SoW from Template
+            </button>
+
+            <div id="sowOutput" class="sow-output hidden">
+                <h3>Generated Statement of Work</h3>
+                <p class="help-text">Edit the SoW below as needed before creating a quote.</p>
+                <textarea id="sowContent" class="sow-content" rows="20"></textarea>
+                <div class="sow-actions">
+                    <button id="saveSow" class="btn btn-secondary">Save Changes</button>
+                    <button id="createQuote" class="btn btn-primary">Create Quote from SoW</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotes Page -->
+    <div id="quotes" class="page">
+        <header class="page-header">
+            <h2>Quote Builder</h2>
+            <p class="subtitle">Create and manage quotes</p>
+        </header>
+
+        <div class="card">
+            <form id="quoteForm" class="form">
+                <div class="form-group">
+                    <label for="quoteClient">Client Name</label>
+                    <input type="text" id="quoteClient" placeholder="Client name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Quote Items</label>
+                    <div id="quoteItems" class="quote-items">
+                        <div class="quote-item">
+                            <input type="text" placeholder="Item description" class="item-desc" required>
+                            <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
+                            <input type="number" placeholder="Price" class="item-price" min="0" step="0.01" required>
+                            <button type="button" class="btn-icon remove-item" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" id="addItem" class="btn btn-secondary btn-sm">+ Add Item</button>
+                </div>
+
+                <div class="quote-summary">
+                    <div class="summary-row">
+                        <span>Total Cost:</span>
+                        <span id="totalCost">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Price:</span>
+                        <span id="totalPrice">$0.00</span>
+                    </div>
+                    <div class="summary-row profit">
+                        <span>Profit Margin:</span>
+                        <span id="profitMargin">0%</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Generate Quote PDF</button>
+            </form>
+        </div>
+
+        <div class="quotes-list">
+            <h3>Generated Quotes</h3>
+            <div id="quotesList"></div>
+        </div>
+    </div>
+
+    <!-- Workflow Page -->
+    <div id="workflow" class="page">
+        <header class="page-header">
+            <h2>Workflow Tracker</h2>
+            <p class="subtitle">Track post-signature workflows</p>
+        </header>
+
+        <div id="workflowList" class="workflow-list"></div>
+    </div>
+    </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
