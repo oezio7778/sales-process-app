@@ -151,16 +151,16 @@ function autoPopulateForms() {
 
     // Always update with current deal info (even if field has value)
     if (researchCompany) {
-        researchCompany.value = deal.companyName || '';
+        researchCompany.value = deal.company_name || deal.companyName || '';
     }
     if (researchLeader) {
-        researchLeader.value = deal.contactName || '';
+        researchLeader.value = deal.contact_name || deal.contactName || '';
     }
     if (meetingCompany) {
-        meetingCompany.value = deal.companyName || '';
+        meetingCompany.value = deal.company_name || deal.companyName || '';
     }
     if (quoteClient) {
-        quoteClient.value = deal.companyName || '';
+        quoteClient.value = deal.company_name || deal.companyName || '';
     }
 }
 
@@ -170,7 +170,7 @@ function loadDealSelector() {
     const selector = document.getElementById('dealSelector');
 
     selector.innerHTML = '<option value="">Select or create a deal...</option>' +
-        deals.map(deal => `<option value="${deal.id}" ${deal.id === currentDeal ? 'selected' : ''}>${deal.companyName} - ${deal.contactName || 'No contact'}</option>`).join('');
+        deals.map(deal => `<option value="${deal.id}" ${deal.id === currentDeal ? 'selected' : ''}>${deal.company_name || deal.companyName} - ${deal.contact_name || deal.contactName || 'No contact'}</option>`).join('');
 }
 
 // Deal Selector Change
@@ -789,12 +789,12 @@ document.getElementById('saveOrderNotes')?.addEventListener('click', async () =>
         deep: document.querySelector('[data-step="deep"] .step-notes').value,
         enablement: document.querySelector('[data-step="enablement"] .step-notes').value,
         resources: document.querySelector('[data-step="resources"] .step-notes').value,
-        checkedQuestions: []
+        checked_questions: []
     };
 
     // Collect checked questions
     document.querySelectorAll('.question-item input[type="checkbox"]:checked').forEach(cb => {
-        orderData.checkedQuestions.push(cb.id);
+        orderData.checked_questions.push(cb.id);
     });
 
     await db.add('order_sessions', orderData);
