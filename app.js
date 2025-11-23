@@ -520,24 +520,6 @@ See attached quote for detailed pricing breakdown.`;
     }, 2000);
 });
 
-document.getElementById('editSow').addEventListener('click', async () => {
-    const contentDiv = document.getElementById('sowContent');
-    const currentContent = contentDiv.textContent;
-
-    contentDiv.innerHTML = `<textarea style="width: 100%; min-height: 400px; background: var(--dark); color: var(--text); border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; font-family: monospace;">${currentContent}</textarea>`;
-
-    const textarea = contentDiv.querySelector('textarea');
-    textarea.focus();
-
-    document.getElementById('editSow').textContent = 'Save Changes';
-    document.getElementById('editSow').onclick = () => {
-        contentDiv.textContent = textarea.value;
-        document.getElementById('editSow').textContent = 'Edit SoW';
-        document.getElementById('editSow').onclick = null;
-        location.reload(); // Reset event listener
-    };
-});
-
 document.getElementById('createQuote').addEventListener('click', async () => {
     // Navigate to quotes page
     document.querySelector('[data-page="quotes"]').click();
