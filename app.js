@@ -60,8 +60,9 @@ const dataCache = {
 };
 
 // Sync data from Supabase to cache
+// Sync data from Supabase to cache
 async function syncFromSupabase(table) {
-    const data = await db.get(table);
+    const data = await storage.get(table);
     dataCache[table] = data;
     return data;
 }
@@ -200,7 +201,7 @@ function showNewDealModal() {
                 </button>
             </div>
             <div class="modal-body">
-                <form id="newDealForm" class="form">
+                <form id="newDealForm" class="form" onsubmit="event.preventDefault(); return false;">
                     <div class="form-group">
                         <label for="dealCompanyName">Company Name *</label>
                         <input type="text" id="dealCompanyName" required>
@@ -248,31 +249,35 @@ function showNewDealModal() {
 
     // Submit handler
     modal.querySelector('.modal-submit').addEventListener('click', async () => {
-        const form = document.getElementById('newDealForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
+        try {
+            const form = document.getElementById('newDealForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const deal = {
+                company_name: document.getElementById('dealCompanyName').value,
+                contact_name: document.getElementById('dealContactName').value,
+                contact_email: document.getElementById('dealContactEmail').value,
+                value: parseFloat(document.getElementById('dealValue').value) || 0,
+                stage: document.getElementById('dealStage').value
+            };
+
+            const newDeal = await db.add('deals', deal);
+
+            if (!newDeal) {
+                return;
+            }
+
+            setCurrentDeal(newDeal.id);
+            modal.remove();
+
+            alert(`Deal created for ${deal.company_name}! All your notes and activities will now be linked to this deal.`);
+        } catch (error) {
+            console.error('Error creating deal:', error);
+            alert(`Failed to create deal: ${error.message}`);
         }
-
-        const deal = {
-            company_name: document.getElementById('dealCompanyName').value,
-            contact_name: document.getElementById('dealContactName').value,
-            contact_email: document.getElementById('dealContactEmail').value,
-            value: parseFloat(document.getElementById('dealValue').value) || 0,
-            stage: document.getElementById('dealStage').value
-        };
-
-        const newDeal = await db.add('deals', deal);
-
-        if (!newDeal) {
-            // Error is already logged/alerted by storage.add
-            return;
-        }
-
-        setCurrentDeal(newDeal.id);
-        modal.remove();
-
-        alert(`Deal created for ${deal.company_name}! All your notes and activities will now be linked to this deal.`);
     });
 }
 
