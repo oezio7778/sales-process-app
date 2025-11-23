@@ -756,7 +756,7 @@ function loadWorkflows() {
     }
 }
 
-function advanceWorkflow(workflowId) {
+async function advanceWorkflow(workflowId) {
     const workflows = db.get('workflows');
     const workflow = workflows.find(w => w.id === workflowId);
 
@@ -1061,7 +1061,7 @@ function loadOfferings() {
     }
 }
 
-function deleteOffering(offeringId) {
+async function deleteOffering(offeringId) {
     if (!confirm('Are you sure you want to delete this offering?')) return;
 
     const offerings = db.get('service_offerings');
@@ -1140,7 +1140,7 @@ function editTemplate(templateId) {
     }
 }
 
-function deleteTemplate(templateId) {
+async function deleteTemplate(templateId) {
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     const templates = db.get('sow_templates');
@@ -1247,12 +1247,12 @@ document.getElementById('importData')?.addEventListener('click', async () => {
     document.getElementById('importFile').click();
 });
 
-document.getElementById('importFile')?.addEventListener('change', (e) => {
+document.getElementById('importFile')?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
         try {
             const importedData = JSON.parse(event.target.result);
 
