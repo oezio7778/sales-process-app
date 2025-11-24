@@ -202,28 +202,36 @@
                 </div>
 
                 <div class="card" style="margin-top: 2rem;">
-                    <h3>Data Management</h3>
-                    <p class="help-text">Export your data for backup or import to restore in a new browser/tab.</p>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button id="exportData" class="btn btn-secondary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Export All Data
-                        </button>
-                        <button id="importData" class="btn btn-primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            Import Data
-                        </button>
-                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <h3>Deal Documents</h3>
+                    <div class="documents-section">
+                        <div id="documentsList" class="documents-list">
+                            <!-- Documents will be loaded here -->
+                            <div class="empty-state">Select a deal to view documents</div>
+                        </div>
+
+                        <form id="addDocumentForm" class="add-document-form"
+                            style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                            <h4>Add Document Link</h4>
+                            <div class="form-group">
+                                <input type="text" id="docName" placeholder="Document Name (e.g. Q3 Report)" required
+                                    class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="url" id="docUrl" placeholder="URL (e.g. https://docs.google.com/...)"
+                                    required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="docType" class="form-control">
+                                    <option value="Google Doc">Google Doc</option>
+                                    <option value="PDF">PDF Link</option>
+                                    <option value="Spreadsheet">Spreadsheet</option>
+                                    <option value="Presentation">Presentation</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%;">+ Add
+                                Document</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -672,7 +680,7 @@
                             <input type="text" id="leaderName" placeholder="Enter leader's name">
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" id="researchBtn" class="btn btn-primary">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
