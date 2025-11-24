@@ -114,17 +114,31 @@
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     <span class="deal-label">Current Deal:</span>
-                    <select id="dealSelector" class="deal-select">
-                        <option value="">Select or create a deal...</option>
-                    </select>
+                    <div class="deal-search-container">
+                        <input type="text" id="dealSearchInput" class="deal-search-input"
+                            placeholder="Search or select a deal...">
+                        <div id="dealDropdown" class="deal-dropdown hidden"></div>
+                    </div>
                 </div>
-                <button id="newDealBtn" class="btn btn-primary btn-sm">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    New Deal
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="deleteDealBtn" class="btn btn-secondary btn-sm" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                            </path>
+                        </svg>
+                        Delete
+                    </button>
+                    <button id="newDealBtn" class="btn btn-primary btn-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New Deal
+                    </button>
+                </div>
             </div>
 
             <!-- Dashboard Page -->
@@ -671,13 +685,13 @@
                 <div class="card">
                     <form id="researchForm" class="form">
                         <div class="form-group">
-                            <label for="companyName">Company Name</label>
-                            <input type="text" id="companyName" placeholder="Enter company name" required>
+                            <label for="researchCompany">Company Name</label>
+                            <input type="text" id="researchCompany" placeholder="Enter company name" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="leaderName">Leader Name (Optional)</label>
-                            <input type="text" id="leaderName" placeholder="Enter leader's name">
+                            <label for="researchLeader">Leader Name (Optional)</label>
+                            <input type="text" id="researchLeader" placeholder="Enter leader's name">
                         </div>
 
                         <button type="button" id="researchBtn" class="btn btn-primary">
@@ -690,8 +704,7 @@
                         </button>
                     </form>
 
-                    <div id="researchResults" class="research-results hidden">
-                        <h3>Research Results</h3>
+                    <div id="researchResults" class="research-results">
                         <div id="researchContent"></div>
                     </div>
                 </div>
