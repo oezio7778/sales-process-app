@@ -493,21 +493,60 @@ textarea {
     white-space: nowrap;
 }
 
-.deal-select {
+.deal-search-container {
+    position: relative;
     flex: 1;
     max-width: 400px;
+}
+
+.deal-search-input {
+    width: 100%;
     background: var(--dark);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 0.625rem 1rem;
     color: var(--text);
     font-size: 0.95rem;
-    cursor: pointer;
 }
 
-.deal-select:focus {
+.deal-search-input:focus {
     outline: none;
     border-color: var(--primary);
+}
+
+.deal-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.deal-dropdown-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.deal-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.deal-dropdown-item:hover {
+    background: var(--dark-lighter);
+}
+
+.deal-dropdown-item.selected {
+    background: var(--primary);
+    color: white;
 }
 
 /* Modal */
