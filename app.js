@@ -164,20 +164,130 @@ function autoPopulateForms() {
     }
 }
 
-// Load Deal Selector
+// Load Deal Selector with Autocomplete
 function loadDealSelector() {
     const deals = db.get('deals');
-    const selector = document.getElementById('dealSelector');
+    const input = document.getElementById('dealSearchInput');
+    const deleteBtn = document.getElementById('deleteDealBtn');
 
-    selector.innerHTML = '<option value="">Select or create a deal...</option>' +
-        deals.map(deal => `<option value="${deal.id}" ${deal.id === currentDeal ? 'selected' : ''}>${deal.company_name || deal.companyName} - ${deal.contact_name || deal.contactName || 'No contact'}</option>`).join('');
+    if (!input) return;
+
+    // Update input with current deal
+    if (currentDeal) {
+        const deal = deals.find(d => d.id === currentDeal);
+        if (deal) {
+            input.value = `${deal.company_name || deal.companyName} - ${deal.contact_name || deal.contactName || 'No contact'}`;
+            deleteBtn.style.display = 'inline-flex';
+        }
+    } else {
+        input.value = '';
+        deleteBtn.style.display = 'none';
+    }
 }
 
-// Deal Selector Change
-document.getElementById('dealSelector')?.addEventListener('change', (e) => {
-    const dealId = parseInt(e.target.value);
-    if (dealId) {
-        setCurrentDeal(dealId);
+// Deal Search Input Handler
+document.getElementById('dealSearchInput')?.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const deals = db.get('deals');
+    const dropdown = document.getElementById('dealDropdown');
+
+    if (!searchTerm) {
+        // Show all deals when input is empty
+        const filteredDeals = deals;
+        showDealDropdown(filteredDeals);
+    } else {
+        // Filter deals based on search term
+        const filteredDeals = deals.filter(deal => {
+            const companyName = (deal.company_name || deal.companyName || '').toLowerCase();
+            const contactName = (deal.contact_name || deal.contactName || '').toLowerCase();
+            return companyName.includes(searchTerm) || contactName.includes(searchTerm);
+        });
+        showDealDropdown(filteredDeals);
+    }
+});
+
+// Show/hide dropdown on focus/blur
+document.getElementById('dealSearchInput')?.addEventListener('focus', () => {
+    const deals = db.get('deals');
+    showDealDropdown(deals);
+});
+
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('dealDropdown');
+    const input = document.getElementById('dealSearchInput');
+    if (dropdown && input && !dropdown.contains(e.target) && e.target !== input) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+function showDealDropdown(deals) {
+    const dropdown = document.getElementById('dealDropdown');
+    if (!dropdown) return;
+
+    if (deals.length === 0) {
+        dropdown.innerHTML = '<div class="deal-dropdown-item" style="color: var(--text-muted);">No deals found</div>';
+        dropdown.classList.remove('hidden');
+        return;
+    }
+
+    dropdown.innerHTML = deals.map(deal => {
+        const isSelected = deal.id === currentDeal;
+        return `
+            <div class="deal-dropdown-item ${isSelected ? 'selected' : ''}" data-deal-id="${deal.id}">
+                <strong>${deal.company_name || deal.companyName}</strong>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">${deal.contact_name || deal.contactName || 'No contact'}</div>
+            </div>
+        `;
+    }).join('');
+
+    dropdown.classList.remove('hidden');
+
+    // Add click handlers to dropdown items
+    dropdown.querySelectorAll('.deal-dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const dealId = parseInt(item.dataset.dealId);
+            if (dealId) {
+                setCurrentDeal(dealId);
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+}
+
+// Delete Deal Button
+document.getElementById('deleteDealBtn')?.addEventListener('click', async () => {
+    if (!currentDeal) return;
+
+    const deal = getCurrentDeal();
+    if (!deal) return;
+
+    const confirmDelete = confirm(`Are you sure you want to delete the deal for "${deal.company_name || deal.companyName}"?\n\nThis will also delete all associated meetings, quotes, and workflows.`);
+
+    if (confirmDelete) {
+        // Delete associated data
+        const meetings = db.get('meetings').filter(m => (m.deal_id || m.dealId) === currentDeal);
+        const sows = db.get('sows').filter(s => (s.deal_id || s.dealId) === currentDeal);
+        const quotes = db.get('quotes').filter(q => (q.deal_id || q.dealId) === currentDeal);
+        const workflows = db.get('workflows').filter(w => (w.deal_id || w.dealId) === currentDeal);
+
+        // Delete all associated records
+        for (const meeting of meetings) await db.delete('meetings', meeting.id);
+        for (const sow of sows) await db.delete('sows', sow.id);
+        for (const quote of quotes) await db.delete('quotes', quote.id);
+        for (const workflow of workflows) await db.delete('workflows', workflow.id);
+
+        // Delete the deal itself
+        await db.delete('deals', currentDeal);
+
+        // Clear current deal
+        currentDeal = null;
+        localStorage.removeItem('currentDealId');
+
+        // Refresh UI
+        loadDealSelector();
+        updateDashboard();
+
+        alert('Deal deleted successfully!');
     }
 });
 
@@ -314,15 +424,18 @@ function updateDashboard() {
         return;
     }
 
-    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
-    const sows = db.get('sows').filter(s => s.dealId === currentDeal);
-    const quotes = db.get('quotes').filter(q => q.dealId === currentDeal);
-    const workflows = db.get('workflows').filter(w => w.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => (m.deal_id || m.dealId) === currentDeal);
+    const sows = db.get('sows').filter(s => (s.deal_id || s.dealId) === currentDeal);
+    const quotes = db.get('quotes').filter(q => (q.deal_id || q.dealId) === currentDeal);
+    const workflows = db.get('workflows').filter(w => (w.deal_id || w.dealId) === currentDeal);
 
     document.getElementById('activeMeetings').textContent = meetings.length;
     document.getElementById('pendingSows').textContent = sows.length;
     document.getElementById('openQuotes').textContent = quotes.length;
     document.getElementById('activeWorkflows').textContent = workflows.filter(w => w.status !== 'completed').length;
+
+    // Load Documents
+    loadDocuments();
 
     // Show recent activity for this deal
     const activityList = document.getElementById('activityList');
@@ -330,14 +443,14 @@ function updateDashboard() {
         ...meetings.map(m => ({ type: 'meeting', data: m })),
         ...quotes.map(q => ({ type: 'quote', data: q })),
         ...sows.map(s => ({ type: 'sow', data: s }))
-    ].sort((a, b) => new Date(b.data.createdAt) - new Date(a.data.createdAt)).slice(0, 5);
+    ].sort((a, b) => new Date(b.data.created_at || b.data.createdAt) - new Date(a.data.created_at || a.data.createdAt)).slice(0, 5);
 
     if (allActivity.length === 0) {
         activityList.innerHTML = '<div class="empty-state"><p>No recent activity for this deal. Start by preparing for a meeting!</p></div>';
     } else {
         activityList.innerHTML = allActivity.map(activity => {
             const { type, data } = activity;
-            const date = new Date(data.createdAt).toLocaleDateString();
+            const date = new Date(data.created_at || data.createdAt).toLocaleDateString();
             let title = '';
 
             if (type === 'meeting') title = `Meeting with ${data.company}`;
@@ -427,7 +540,7 @@ document.getElementById('meetingForm').addEventListener('submit', async (e) => {
 });
 
 function loadMeetingsList() {
-    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => (m.deal_id || m.dealId) === currentDeal);
     const listDiv = document.getElementById('meetingsList');
 
     if (!currentDeal) {
@@ -450,7 +563,7 @@ function loadMeetingsList() {
 
 // SoW Generator
 function loadMeetingsForSow() {
-    const meetings = db.get('meetings').filter(m => m.dealId === currentDeal);
+    const meetings = db.get('meetings').filter(m => (m.deal_id || m.dealId) === currentDeal);
     const select = document.getElementById('sowMeeting');
 
     if (!currentDeal) {
@@ -680,7 +793,7 @@ document.getElementById('quoteForm').addEventListener('submit', async (e) => {
 });
 
 function loadQuotesList() {
-    const quotes = db.get('quotes').filter(q => q.dealId === currentDeal);
+    const quotes = db.get('quotes').filter(q => (q.deal_id || q.dealId) === currentDeal);
     const listDiv = document.getElementById('quotesList');
 
     if (!currentDeal) {
@@ -694,10 +807,10 @@ function loadQuotesList() {
         listDiv.innerHTML = quotes.reverse().map(quote => `
             <div class="list-item">
                 <h4>${quote.client}</h4>
-                <p><strong>Total:</strong> $${quote.totalPrice.toFixed(2)}</p>
+                <p><strong>Total:</strong> $${(quote.total_price || quote.totalPrice || 0).toFixed(2)}</p>
                 <p><strong>Profit Margin:</strong> ${quote.margin}%</p>
                 <p><strong>Status:</strong> <span class="status-badge ${quote.status}">${quote.status}</span></p>
-                <p style="margin-top: 0.5rem; font-size: 0.875rem;">${quote.items.length} items - Created ${new Date(quote.createdAt).toLocaleDateString()}</p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">${quote.items.length} items - Created ${new Date(quote.created_at || quote.createdAt).toLocaleDateString()}</p>
             </div>
         `).join('');
     }
@@ -705,7 +818,7 @@ function loadQuotesList() {
 
 // Workflow Tracker
 function loadWorkflows() {
-    const workflows = db.get('workflows').filter(w => w.dealId === currentDeal);
+    const workflows = db.get('workflows').filter(w => (w.deal_id || w.dealId) === currentDeal);
     const listDiv = document.getElementById('workflowList');
 
     if (!currentDeal) {
@@ -865,8 +978,8 @@ document.getElementById('saveScenario')?.addEventListener('click', async () => {
 });
 
 function loadScenarios() {
-    const scenarios = db.get('roi_scenarios').filter(s => s.dealId === currentDeal);
-    const listDiv = document.getElementById('scenariosList');
+    const scenarios = db.get('roi_scenarios').filter(s => (s.deal_id || s.dealId) === currentDeal);
+    const listDiv = document.getElementById('savedScenariosList');
 
     if (!currentDeal) {
         listDiv.innerHTML = '<div class="empty-state"><p>Please select a deal to view scenarios.</p></div>';
@@ -874,13 +987,15 @@ function loadScenarios() {
     }
 
     if (scenarios.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state"><p>No saved scenarios yet.</p></div>';
+        listDiv.innerHTML = '<div class="empty-state"><p>No saved scenarios for this deal.</p></div>';
     } else {
         listDiv.innerHTML = scenarios.reverse().map(scenario => `
-            <div class="list-item">
-                <h4>Scenario from ${new Date(scenario.createdAt).toLocaleDateString()}</h4>
-                <p><strong>Team Size:</strong> ${scenario.teamSize} | <strong>3-Year ROI:</strong> ${scenario.results.threeYearROI}</p>
-                <p><strong>Total Annual Benefit:</strong> ${scenario.results.totalBenefit}</p>
+            <div class="list-item" onclick="loadScenario(${scenario.id})" style="cursor: pointer;">
+                <h4>ROI Scenario - ${new Date(scenario.created_at || scenario.createdAt).toLocaleDateString()}</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.875rem;">
+                    <div>Benefit: ${scenario.results.totalBenefit}</div>
+                    <div>ROI: ${scenario.results.threeYearROI}</div>
+                </div>
             </div>
         `).join('');
     }
@@ -919,7 +1034,7 @@ document.getElementById('stakeholderForm')?.addEventListener('submit', async (e)
 });
 
 function loadStakeholderMap() {
-    const stakeholders = db.get('stakeholders').filter(s => s.dealId === currentDeal);
+    const stakeholders = db.get('stakeholders').filter(s => (s.deal_id || s.dealId) === currentDeal);
 
     // Clear all quadrants
     document.querySelectorAll('.stakeholder-cards').forEach(div => div.innerHTML = '');
@@ -1036,15 +1151,15 @@ function loadOfferings() {
                     <h4>${offering.name}</h4>
                     <span class="offering-category">${offering.category}</span>
                 </div>
-                ${offering.description ? `<p class="offering-description">${offering.description}</p>` : ''}
-                <div class="offering-pricing">
-                    <div class="offering-price">
+                <p>${offering.description}</p>
+                <div class="offering-details">
+                    <div class="offering-cost">
                         <label>Cost</label>
-                        <span>$${offering.defaultCost.toLocaleString()}</span>
+                        <span>$${(offering.default_cost || offering.defaultCost || 0).toLocaleString()}</span>
                     </div>
                     <div class="offering-price">
                         <label>Price</label>
-                        <span>$${offering.defaultPrice.toLocaleString()}</span>
+                        <span>$${(offering.default_price || offering.defaultPrice || 0).toLocaleString()}</span>
                     </div>
                 </div>
                 <div class="offering-actions">
@@ -1092,7 +1207,7 @@ function loadTemplates() {
             <div class="template-item">
                 <div class="template-info">
                     <h5>${template.name}</h5>
-                    <p>${template.category} • Created ${new Date(template.createdAt).toLocaleDateString()}</p>
+                    <p>${template.category} • Created ${new Date(template.created_at || template.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div class="template-actions">
                     <button class="btn btn-sm btn-secondary" onclick="editTemplate(${template.id})">Edit</button>
@@ -1302,3 +1417,81 @@ initializeApp().catch(error => {
     console.error('Failed to initialize app:', error);
     alert('Failed to load data from database. Please refresh the page.');
 });
+// --- Deal Documents Library ---
+
+async function loadDocuments() {
+    const listDiv = document.getElementById('documentsList');
+    if (!listDiv) return;
+
+    if (!currentDeal) {
+        listDiv.innerHTML = '<div class="empty-state">Select a deal to view documents</div>';
+        return;
+    }
+
+    // Fetch documents for current deal
+    const documents = db.get('documents').filter(d => (d.deal_id || d.dealId) === currentDeal);
+
+    if (documents.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">No documents linked to this deal yet.</div>';
+    } else {
+        listDiv.innerHTML = documents.reverse().map(doc => `
+            <div class="document-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                <div class="doc-info">
+                    <a href="${doc.url}" target="_blank" style="font-weight: 500; color: var(--primary-color); text-decoration: none;">
+                        ${doc.name}
+                    </a>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;">(${doc.type})</span>
+                </div>
+                <button class="btn-icon" onclick="deleteDocument(${doc.id})" title="Remove Link" style="color: var(--danger-color);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+    }
+}
+
+// Add Document
+document.getElementById('addDocumentForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!currentDeal) {
+        alert('Please select a deal first!');
+        return;
+    }
+
+    const name = document.getElementById('docName').value;
+    const url = document.getElementById('docUrl').value;
+    const type = document.getElementById('docType').value;
+
+    if (!name || !url) return;
+
+    try {
+        await db.add('documents', {
+            deal_id: currentDeal,
+            name,
+            url,
+            type
+        });
+
+        // Reset form
+        document.getElementById('addDocumentForm').reset();
+
+        // Reload list
+        loadDocuments();
+
+    } catch (error) {
+        console.error('Error adding document:', error);
+        alert('Failed to add document link.');
+    }
+});
+
+// Delete Document
+window.deleteDocument = async (id) => {
+    if (confirm('Are you sure you want to remove this document link?')) {
+        await db.delete('documents', id);
+        loadDocuments();
+    }
+};
